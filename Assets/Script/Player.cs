@@ -53,7 +53,7 @@ public class Player : MonoBehaviour
         Vector2 forceDirection = new Vector2(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians));
 
         rb.AddForce(forceDirection * forceMagnitude, ForceMode2D.Impulse);
-
+        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
         leftRightForce = !leftRightForce;
     }
 

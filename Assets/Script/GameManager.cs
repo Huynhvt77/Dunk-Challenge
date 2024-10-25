@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -14,7 +15,7 @@ public class GameManager : MonoBehaviour
     public Sprite onMusic;
     public Sprite offMusic;
     Image img;
-
+    public TMP_Text scoreTxt;
     public GameObject pausePanel;
     public GameObject losePanel;
     public GameObject home;
@@ -32,6 +33,7 @@ public class GameManager : MonoBehaviour
 
     public bool isMusic = true;
     public static int curentLevel = 1;
+    int highScore;
     public bool isPause = false;
     public bool win = false;
     public int index;
@@ -52,6 +54,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (scoreTxt != null)
+        {
+            scoreTxt.text = "Score: " + (curentLevel - 1);
+        }
         if (music != null)
         {
             img = music.GetComponent<Image>();
@@ -60,35 +66,39 @@ public class GameManager : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
-            bool s = false;
-            foreach (Level levelx in levels)
-            {
-                if (levelx.gameObject.activeSelf)
-                {
-                    level = levelx;
-                    basket = level.transform.Find("Basket");
-                    GetCheckPos();
-                    s = true;
-                }
-            }
-            if (!s)
-            {
-                index = Random.Range(0, 7);
-                level = levels[index];
-                level.gameObject.SetActive(true);
-                basket = level.transform.Find("Basket");
-                GetCheckPos();
-            }
-            // index = Random.Range(0, 7);
-            // level = levels[index];
-            // level.gameObject.SetActive(true);
-            // basket = level.transform.Find("Basket");
-            // GetCheckPos();
+            // bool s = false;
+            // foreach (Level levelx in levels)
+            // {
+            //     if (levelx.gameObject.activeSelf)
+            //     {
+            //         level = levelx;
+            //         basket = level.transform.Find("Basket");
+            //         GetCheckPos();
+            //         s = true;
+            //     }
+            // }
+            // if (!s)
+            // {
+            //     index = Random.Range(0, 7);
+            //     level = levels[index];
+            //     level.gameObject.SetActive(true);
+            //     basket = level.transform.Find("Basket");
+            //     GetCheckPos();
+            // }
+            index = Random.Range(0, 7);
+            level = levels[index];
+            level.gameObject.SetActive(true);
+            basket = level.transform.Find("Basket");
+            GetCheckPos();
         }
     }
 
     private void Update()
     {
+        if (scoreTxt != null)
+        {
+            scoreTxt.text = "Score: " + (curentLevel - 1);
+        }
         if (player != null)
         {
             AdjustCameraPosition();
@@ -170,6 +180,7 @@ public class GameManager : MonoBehaviour
     public void RetryButton()
     {
         isPause = false;
+        curentLevel = 1;
         SetActiveHomeAndMusic(false);
         losePanel.SetActive(false);
         player.Reset();
@@ -189,15 +200,18 @@ public class GameManager : MonoBehaviour
 
     public void SetActiveLosePanel()
     {
+        highScore = (curentLevel - 1 > highScore) ? curentLevel - 1 : highScore;
         isPause = true;
         SetActiveHomeAndMusic(isPause);
         losePanel.SetActive(isPause);
+        losePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "SCORE: " + (curentLevel - 1);
+        losePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "HIGH SCORE: " + highScore;
     }
 
     public void HandleWin()
     {
         StartCoroutine(Win());
-        //win
+        curentLevel++;
     }
 
     IEnumerator Win()
@@ -213,8 +227,8 @@ public class GameManager : MonoBehaviour
         }
         index = x;
         level = levels[index];
+        level.gameObject.SetActive(true);
         GetCheckPos();
-
         player.transform.position = new Vector3(player.transform.position.x, spawnPos.position.y, player.transform.position.z);
         SetCamPos();
     }
