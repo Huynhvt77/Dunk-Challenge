@@ -32,12 +32,11 @@ public class GameManager : MonoBehaviour
     Vector3 cameraOffset = Vector3.zero;
 
     public bool isMusic = true;
-    public static int curentLevel = 1;
-    int highScore;
+    public static int currentLevel = 1;
+    public static int highScore;
     public bool isPause = false;
     public bool win = false;
     public int index;
-    bool camMoving = false;
 
 
     private void Awake()
@@ -54,9 +53,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        highScore = PlayerPrefs.GetInt("highscore", 0);
         if (scoreTxt != null)
         {
-            scoreTxt.text = "Score: " + (curentLevel - 1);
+            scoreTxt.text = "Score: " + (currentLevel - 1);
         }
         if (music != null)
         {
@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
     {
         if (scoreTxt != null)
         {
-            scoreTxt.text = "Score: " + (curentLevel - 1);
+            scoreTxt.text = "Score: " + (currentLevel - 1);
         }
         if (player != null)
         {
@@ -106,31 +106,12 @@ public class GameManager : MonoBehaviour
 
     private void AdjustCameraPosition()
     {
-        float screenHeight = Screen.height;
-
-        Vector3 playerScreenPosition = Camera.main.WorldToScreenPoint(player.transform.position);
-
-        if (!camMoving)
-        {
-            cameraOffset = player.transform.position - mainCamera.transform.position;
-        }
-        if (playerScreenPosition.y < screenHeight / 3 || playerScreenPosition.y > 5 * screenHeight / 6)
-        {
-            camMoving = true;
-
-            Vector3 newPosition = new(mainCamera.transform.position.x, player.transform.position.y - cameraOffset.y, mainCamera.transform.position.z);
-
-            mainCamera.transform.position = newPosition;
-        }
-        else
-        {
-            camMoving = false;
-        }
+        SetCamPos();
     }
 
     public void SetCamPos()
     {
-        mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, player.transform.position.y + 4f, mainCamera.transform.position.z); ;
+        mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, player.transform.position.y, mainCamera.transform.position.z); ;
     }
 
     void GetCheckPos()
@@ -180,7 +161,7 @@ public class GameManager : MonoBehaviour
     public void RetryButton()
     {
         isPause = false;
-        curentLevel = 1;
+        currentLevel = 1;
         SetActiveHomeAndMusic(false);
         losePanel.SetActive(false);
         player.Reset();
@@ -211,19 +192,22 @@ public class GameManager : MonoBehaviour
 
     public void SetActiveLosePanel()
     {
-        highScore = (curentLevel - 1 > highScore) ? curentLevel - 1 : highScore;
+        highScore = Mathf.Max(highScore, currentLevel - 1);
         PlayerPrefs.SetInt("highscore", highScore);
         PlayerPrefs.Save();
         isPause = true;
         SetActiveHomeAndMusic(isPause);
         losePanel.SetActive(isPause);
-        losePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "SCORE: " + (curentLevel - 1);
+        losePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "SCORE: " + (currentLevel - 1);
         losePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "HIGH SCORE: " + PlayerPrefs.GetInt("highscore", 0);
     }
 
     public void HandleWin()
     {
-        curentLevel++;
+        currentLevel++;
+        highScore = Mathf.Max(highScore, currentLevel - 1);
+        PlayerPrefs.SetInt("highscore", highScore);
+        PlayerPrefs.Save();
         StartCoroutine(Win());
     }
 

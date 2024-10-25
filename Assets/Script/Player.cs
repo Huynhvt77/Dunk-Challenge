@@ -35,9 +35,9 @@ public class Player : MonoBehaviour
                     velocityX = rb.velocity.x;
                 }
                 rb.velocity = new Vector2(velocityX, velocityY);
-                if (transform.position.y >= 50f)
+                if (transform.position.y >= 40f)
                 {
-                    transform.position = new Vector2(transform.position.x, 50f);
+                    transform.position = new Vector2(transform.position.x, 40f);
                 }
             }
         }
