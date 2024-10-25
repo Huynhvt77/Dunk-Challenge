@@ -23,7 +23,11 @@ public class Player : MonoBehaviour
     {
         if (!GameManager.Instance.isPause)
         {
-            HandleForce();
+            if (!GameManager.Instance.win)
+            {
+                HandleForce();
+                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+            }
         }
         else
         {
@@ -53,7 +57,6 @@ public class Player : MonoBehaviour
         Vector2 forceDirection = new Vector2(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians));
 
         rb.AddForce(forceDirection * forceMagnitude, ForceMode2D.Impulse);
-        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
         leftRightForce = !leftRightForce;
     }
 

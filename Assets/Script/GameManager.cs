@@ -88,7 +88,6 @@ public class GameManager : MonoBehaviour
             index = Random.Range(0, 7);
             level = levels[index];
             level.gameObject.SetActive(true);
-            basket = level.transform.Find("Basket");
             GetCheckPos();
         }
     }
@@ -136,6 +135,7 @@ public class GameManager : MonoBehaviour
 
     void GetCheckPos()
     {
+        basket = level.transform.Find("Basket");
         checkUpPos = basket.GetChild(2).gameObject;
         checkDownPos = basket.GetChild(3).gameObject;
     }
@@ -184,6 +184,17 @@ public class GameManager : MonoBehaviour
         SetActiveHomeAndMusic(false);
         losePanel.SetActive(false);
         player.Reset();
+        mainCamera.transform.position = new Vector3(0, 0, -10f);
+        level.gameObject.SetActive(false);
+        int x = Random.Range(0, 7);
+        while (x == index)
+        {
+            x = Random.Range(0, 7);
+        }
+        index = x;
+        level = levels[index];
+        level.gameObject.SetActive(true);
+        GetCheckPos();
     }
 
     public void HomeButton()
@@ -210,8 +221,8 @@ public class GameManager : MonoBehaviour
 
     public void HandleWin()
     {
-        StartCoroutine(Win());
         curentLevel++;
+        StartCoroutine(Win());
     }
 
     IEnumerator Win()
@@ -231,5 +242,6 @@ public class GameManager : MonoBehaviour
         GetCheckPos();
         player.transform.position = new Vector3(player.transform.position.x, spawnPos.position.y, player.transform.position.z);
         SetCamPos();
+        win = false;
     }
 }
