@@ -28,13 +28,14 @@ public class GameManager : MonoBehaviour
     Level level;
     public Level[] levels = new Level[7];
     Transform basket;
+    Vector3 cameraOffset = Vector3.zero;
 
     public bool isMusic = true;
     public static int curentLevel = 1;
     public bool isPause = false;
     public bool win = false;
     public int index;
-    public float cameraOffsetY = 0.5f;
+    bool camMoving = false;
 
 
     private void Awake()
@@ -96,23 +97,31 @@ public class GameManager : MonoBehaviour
 
     private void AdjustCameraPosition()
     {
-        float screenHeight = Camera.main.orthographicSize * 2;
+        float screenHeight = Screen.height;
 
-        float minY = screenHeight / 4;
-        float maxY = screenHeight * (5f / 6f);
+        Vector3 playerScreenPosition = Camera.main.WorldToScreenPoint(player.transform.position);
 
-        Vector3 playerPos = player.transform.position;
-
-        if (playerPos.y < minY)
+        if (!camMoving)
         {
-            Vector3 newCameraPos = new Vector3(mainCamera.transform.position.x, playerPos.y + cameraOffsetY, mainCamera.transform.position.z);
-            mainCamera.transform.position = newCameraPos;
+            cameraOffset = player.transform.position - mainCamera.transform.position;
         }
-        else if (playerPos.y > maxY)
+        if (playerScreenPosition.y < screenHeight / 3 || playerScreenPosition.y > 5 * screenHeight / 6)
         {
-            Vector3 newCameraPos = new Vector3(mainCamera.transform.position.x, playerPos.y - cameraOffsetY, mainCamera.transform.position.z);
-            mainCamera.transform.position = newCameraPos;
+            camMoving = true;
+
+            Vector3 newPosition = new(mainCamera.transform.position.x, player.transform.position.y - cameraOffset.y, mainCamera.transform.position.z);
+
+            mainCamera.transform.position = newPosition;
         }
+        else
+        {
+            camMoving = false;
+        }
+    }
+
+    public void SetCamPos()
+    {
+        mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, player.transform.position.y + 4f, mainCamera.transform.position.z); ;
     }
 
     void GetCheckPos()
@@ -206,7 +215,7 @@ public class GameManager : MonoBehaviour
         level = levels[index];
         GetCheckPos();
 
-        player.transform.position = spawnPos.position;
-        // giu nguyen vi tri tuong doi cua camera voi player
+        player.transform.position = new Vector3(player.transform.position.x, spawnPos.position.y, player.transform.position.z);
+        SetCamPos();
     }
 }

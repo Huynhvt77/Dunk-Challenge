@@ -117,7 +117,7 @@ public class Player : MonoBehaviour
     public void Reset()
     {
         rb.constraints = RigidbodyConstraints2D.None;
-        transform.position = new Vector3(transform.position.x, originalPos.y, transform.position.z);
+        transform.position = originalPos;
         gameObject.SetActive(true);
         transform.GetChild(0).gameObject.SetActive(true);
     }
