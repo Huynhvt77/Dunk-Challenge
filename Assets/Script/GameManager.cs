@@ -17,6 +17,12 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject losePanel;
     public GameObject home;
+    public GameObject gamePlay;
+    public GameObject checkUpPos;
+    public GameObject checkDownPos;
+    Player player;
+    Level level;
+    public Level[] levels = new Level[7];
 
     public bool isMusic = true;
     public static int curentLevel = 1;
@@ -43,6 +49,19 @@ public class GameManager : MonoBehaviour
             img = music.GetComponent<Image>();
             img.sprite = isMusic ? onMusic : offMusic;
         }
+        if (SceneManager.GetActiveScene().name == "GameScene")
+        {
+            Level[] levelsInScene = FindObjectsOfType<Level>();
+
+            foreach (Level levelObject in levelsInScene)
+            {
+                Destroy(levelObject.gameObject);
+            }
+
+            level = Instantiate(levels[0]);
+            level.transform.SetParent(gamePlay.transform);
+        }
+        player = FindObjectOfType<Player>();
     }
 
     public void OnOffMusic()
@@ -86,6 +105,7 @@ public class GameManager : MonoBehaviour
         isPause = false;
         SetActiveHomeAndMusic(false);
         losePanel.SetActive(false);
+        player.Reset();
     }
 
     public void HomeButton()
