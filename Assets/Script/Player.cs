@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ public class Player : MonoBehaviour
     public float forceMagnitude = 10f;
     bool touchUp = false;
     bool touchDown = false;
+    float velocityY;
+    float velocityX;
 
     private void Start()
     {
@@ -26,7 +29,16 @@ public class Player : MonoBehaviour
             if (!GameManager.Instance.win)
             {
                 HandleForce();
-                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+                velocityY = rb.velocity.y < -15f ? -15f : rb.velocity.y;
+                if (rb.velocity.x != 0f)
+                {
+                    velocityX = rb.velocity.x;
+                }
+                rb.velocity = new Vector2(velocityX, velocityY);
+                if (transform.position.y >= 50f)
+                {
+                    transform.position = new Vector2(transform.position.x, 50f);
+                }
             }
         }
         else
@@ -55,7 +67,6 @@ public class Player : MonoBehaviour
         float goc = leftRightForce ? 15f : -15f;
         float angleInRadians = goc * Mathf.Deg2Rad;
         Vector2 forceDirection = new Vector2(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians));
-
         rb.AddForce(forceDirection * forceMagnitude, ForceMode2D.Impulse);
         leftRightForce = !leftRightForce;
     }
@@ -107,6 +118,7 @@ public class Player : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             yield return new WaitForSeconds(0.5f);
             particle.gameObject.SetActive(false);
+            rb.constraints = RigidbodyConstraints2D.None;
             gameObject.SetActive(false);
         }
         else

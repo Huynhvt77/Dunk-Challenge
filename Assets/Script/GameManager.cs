@@ -212,11 +212,13 @@ public class GameManager : MonoBehaviour
     public void SetActiveLosePanel()
     {
         highScore = (curentLevel - 1 > highScore) ? curentLevel - 1 : highScore;
+        PlayerPrefs.SetInt("highscore", highScore);
+        PlayerPrefs.Save();
         isPause = true;
         SetActiveHomeAndMusic(isPause);
         losePanel.SetActive(isPause);
         losePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "SCORE: " + (curentLevel - 1);
-        losePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "HIGH SCORE: " + highScore;
+        losePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "HIGH SCORE: " + PlayerPrefs.GetInt("highscore", 0);
     }
 
     public void HandleWin()
