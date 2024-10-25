@@ -30,10 +30,7 @@ public class Player : MonoBehaviour
             {
                 HandleForce();
                 velocityY = rb.velocity.y < -15f ? -15f : rb.velocity.y;
-                if (rb.velocity.x != 0f)
-                {
-                    velocityX = rb.velocity.x;
-                }
+                velocityX = rb.velocity.x;
                 rb.velocity = new Vector2(velocityX, velocityY);
                 if (transform.position.y >= 40f)
                 {
