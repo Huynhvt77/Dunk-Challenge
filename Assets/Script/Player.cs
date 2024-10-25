@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
 
     bool leftRightForce = true;
     public float forceMagnitude = 10f;
+    bool touchUp = false;
+    bool touchDown = false;
 
     private void Start()
     {
@@ -25,6 +27,7 @@ public class Player : MonoBehaviour
         }
         else
         {
+            rb.constraints = RigidbodyConstraints2D.FreezePosition;
             rb.gravityScale = 0;
         }
     }
@@ -44,6 +47,7 @@ public class Player : MonoBehaviour
 
     void ApplyForce()
     {
+        rb.velocity = Vector3.zero;
         float goc = leftRightForce ? 15f : -15f;
         float angleInRadians = goc * Mathf.Deg2Rad;
         Vector2 forceDirection = new Vector2(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians));
@@ -60,6 +64,34 @@ public class Player : MonoBehaviour
             StartCoroutine(HandleEnemyCollision());
         }
     }
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject == GameManager.Instance.checkUpPos && touchDown == false)
+        {
+            touchUp = true;
+        }
+        if (touchUp && collision.gameObject == GameManager.Instance.checkDownPos)
+        {
+            touchDown = true;
+            GameManager.Instance.win = true;
+            HandleWin();
+        }
+    }
+
+    void HandleWin()
+    {
+        touchUp = false;
+        touchDown = false;
+        GameManager.Instance.HandleWin();
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject == GameManager.Instance.checkUpPos && touchDown == false)
+        {
+            touchUp = false;
+        }
+    }
 
     IEnumerator HandleEnemyCollision()
     {
@@ -69,6 +101,7 @@ public class Player : MonoBehaviour
         if (particleSystem != null)
         {
             particleSystem.Play();
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             yield return new WaitForSeconds(0.5f);
             particle.gameObject.SetActive(false);
             gameObject.SetActive(false);
@@ -83,6 +116,7 @@ public class Player : MonoBehaviour
 
     public void Reset()
     {
+        rb.constraints = RigidbodyConstraints2D.None;
         transform.position = originalPos;
         gameObject.SetActive(true);
         transform.GetChild(0).gameObject.SetActive(true);

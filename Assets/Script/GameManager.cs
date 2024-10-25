@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -20,14 +21,20 @@ public class GameManager : MonoBehaviour
     public GameObject gamePlay;
     public GameObject checkUpPos;
     public GameObject checkDownPos;
-    Player player;
+    public GameObject stopBar;
+    public Transform spawnPos;
+    public Camera mainCamera;
+    public Player player;
     Level level;
     public Level[] levels = new Level[7];
+    Transform basket;
 
     public bool isMusic = true;
     public static int curentLevel = 1;
     public bool isPause = false;
     public bool win = false;
+    public int index;
+    public float cameraOffsetY = 0.5f;
 
 
     private void Awake()
@@ -49,19 +56,69 @@ public class GameManager : MonoBehaviour
             img = music.GetComponent<Image>();
             img.sprite = isMusic ? onMusic : offMusic;
         }
+
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
-            Level[] levelsInScene = FindObjectsOfType<Level>();
-
-            foreach (Level levelObject in levelsInScene)
+            bool s = false;
+            foreach (Level levelx in levels)
             {
-                Destroy(levelObject.gameObject);
+                if (levelx.gameObject.activeSelf)
+                {
+                    level = levelx;
+                    basket = level.transform.Find("Basket");
+                    GetCheckPos();
+                    s = true;
+                }
             }
-
-            level = Instantiate(levels[0]);
-            level.transform.SetParent(gamePlay.transform);
+            if (!s)
+            {
+                index = Random.Range(0, 7);
+                level = levels[index];
+                level.gameObject.SetActive(true);
+                basket = level.transform.Find("Basket");
+                GetCheckPos();
+            }
+            // index = Random.Range(0, 7);
+            // level = levels[index];
+            // level.gameObject.SetActive(true);
+            // basket = level.transform.Find("Basket");
+            // GetCheckPos();
         }
-        player = FindObjectOfType<Player>();
+    }
+
+    private void Update()
+    {
+        if (player != null)
+        {
+            AdjustCameraPosition();
+        }
+    }
+
+    private void AdjustCameraPosition()
+    {
+        float screenHeight = Camera.main.orthographicSize * 2;
+
+        float minY = screenHeight / 4;
+        float maxY = screenHeight * (5f / 6f);
+
+        Vector3 playerPos = player.transform.position;
+
+        if (playerPos.y < minY)
+        {
+            Vector3 newCameraPos = new Vector3(mainCamera.transform.position.x, playerPos.y + cameraOffsetY, mainCamera.transform.position.z);
+            mainCamera.transform.position = newCameraPos;
+        }
+        else if (playerPos.y > maxY)
+        {
+            Vector3 newCameraPos = new Vector3(mainCamera.transform.position.x, playerPos.y - cameraOffsetY, mainCamera.transform.position.z);
+            mainCamera.transform.position = newCameraPos;
+        }
+    }
+
+    void GetCheckPos()
+    {
+        checkUpPos = basket.GetChild(2).gameObject;
+        checkDownPos = basket.GetChild(3).gameObject;
     }
 
     public void OnOffMusic()
@@ -94,7 +151,8 @@ public class GameManager : MonoBehaviour
 
     public void ResumeButton()
     {
-        Debug.Log("1111");
+        player.rb.gravityScale = 5f;
+        player.rb.constraints = RigidbodyConstraints2D.None;
         isPause = false;
         SetActiveHomeAndMusic(isPause);
         pausePanel.SetActive(isPause);
@@ -125,5 +183,30 @@ public class GameManager : MonoBehaviour
         isPause = true;
         SetActiveHomeAndMusic(isPause);
         losePanel.SetActive(isPause);
+    }
+
+    public void HandleWin()
+    {
+        StartCoroutine(Win());
+        //win
+    }
+
+    IEnumerator Win()
+    {
+        stopBar.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        stopBar.SetActive(true);
+        level.gameObject.SetActive(false);
+        int x = Random.Range(0, 7);
+        while (x == index)
+        {
+            x = Random.Range(0, 7);
+        }
+        index = x;
+        level = levels[index];
+        GetCheckPos();
+
+        player.transform.position = spawnPos.position;
+        // giu nguyen vi tri tuong doi cua camera voi player
     }
 }
