@@ -17,6 +17,9 @@ public class Player : MonoBehaviour
     float velocityY;
     float velocityX;
 
+    public AudioClip die;
+    public AudioClip bup;
+
     private void Start()
     {
         originalPos = transform.position;
@@ -74,6 +77,11 @@ public class Player : MonoBehaviour
         {
             StartCoroutine(HandleEnemyCollision());
         }
+        else if (collision.gameObject.CompareTag("Untagged"))
+        {
+
+            GameManager.Instance.aus.PlayOneShot(bup);
+        }
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -108,11 +116,12 @@ public class Player : MonoBehaviour
     {
         transform.GetChild(0).gameObject.SetActive(false);
         particle.gameObject.SetActive(true);
+        GameManager.Instance.aus.PlayOneShot(die);
         ParticleSystem particleSystem = particle.gameObject.GetComponent<ParticleSystem>();
         if (particleSystem != null)
         {
             particleSystem.Play();
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
             yield return new WaitForSeconds(0.5f);
             particle.gameObject.SetActive(false);
             rb.constraints = RigidbodyConstraints2D.None;

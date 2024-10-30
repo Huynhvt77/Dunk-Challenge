@@ -2812,6 +2812,8 @@ MonoBehaviour:
   rb: {fileID: 1276339911}
   particle: {fileID: 2126867305}
   forceMagnitude: 10
+  die: {fileID: 8300000, guid: 6429a753dfd7c8b478a4c062354ba5fe, type: 3}
+  bup: {fileID: 8300000, guid: 338575daa8ccffe4caccc9c9a73c4467, type: 3}
 --- !u!58 &1276339910
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3660,9 +3662,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 870511628}
     - target: {fileID: 5599348243118805654, guid: 03754afc8eb35994b9824bdef521dbc8, type: 3}
+      propertyPath: winClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 8c433ac9503ea8a4c92272d19f4d7d7a, type: 3}
+    - target: {fileID: 5599348243118805654, guid: 03754afc8eb35994b9824bdef521dbc8, type: 3}
       propertyPath: gamePlay
       value: 
       objectReference: {fileID: 1080019155}
+    - target: {fileID: 5599348243118805654, guid: 03754afc8eb35994b9824bdef521dbc8, type: 3}
+      propertyPath: loseClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 06c5c414a9450ec40bd13acee8bfe146, type: 3}
     - target: {fileID: 5599348243118805654, guid: 03754afc8eb35994b9824bdef521dbc8, type: 3}
       propertyPath: scoreTxt
       value: 

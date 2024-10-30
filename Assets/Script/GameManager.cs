@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour
     public Level[] levels = new Level[7];
     Transform basket;
     Vector3 cameraOffset = Vector3.zero;
+    public AudioSource aus;
+    public AudioClip loseClip;
+    public AudioClip winClip;
+
 
     public bool isMusic = true;
     public static int currentLevel = 1;
@@ -48,6 +52,22 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+
+        if (aus == null)
+        {
+            aus = FindObjectOfType<AudioSource>();
+            DontDestroyOnLoad(aus);
+        }
+
+        isMusic = PlayerPrefs.GetInt("isMusic", 1) == 1;
+        if (!isMusic && aus != null)
+        {
+            aus.mute = true;
+        }
+        else if (isMusic && aus != null && !aus.isPlaying)
+        {
+            aus.Play();
         }
     }
 
@@ -124,16 +144,25 @@ public class GameManager : MonoBehaviour
     public void OnOffMusic()
     {
         isMusic = !isMusic;
+        PlayerPrefs.SetInt("isMusic", isMusic ? 1 : 0);
+        PlayerPrefs.Save();
 
         if (isMusic)
         {
             img.sprite = onMusic;
             Debug.Log("music on");
+            aus.mute = false;
+            aus.Stop();
+            aus.Play();
         }
         else
         {
             img.sprite = offMusic;
             Debug.Log("music off");
+            if (aus.isPlaying)
+            {
+                aus.Stop();
+            }
         }
     }
 
@@ -146,7 +175,7 @@ public class GameManager : MonoBehaviour
     {
         isPause = true;
         SetActiveHomeAndMusic(isPause);
-        pausePanel.SetActive(isMusic);
+        pausePanel.SetActive(isPause);
     }
 
     public void ResumeButton()
@@ -196,6 +225,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("highscore", highScore);
         PlayerPrefs.Save();
         isPause = true;
+        aus.PlayOneShot(loseClip);
         SetActiveHomeAndMusic(isPause);
         losePanel.SetActive(isPause);
         losePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = "SCORE: " + (currentLevel - 1);
@@ -206,8 +236,10 @@ public class GameManager : MonoBehaviour
     {
         currentLevel++;
         highScore = Mathf.Max(highScore, currentLevel - 1);
+        aus.PlayOneShot(winClip);
         PlayerPrefs.SetInt("highscore", highScore);
         PlayerPrefs.Save();
+
         StartCoroutine(Win());
     }
 
